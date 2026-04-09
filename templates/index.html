@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <p id="status">Current Player: X</p>
+
+        <div class="board">
+            <div class="cell" onclick="makeMove(0)"></div>
+            <div class="cell" onclick="makeMove(1)"></div>
+            <div class="cell" onclick="makeMove(2)"></div>
+            <div class="cell" onclick="makeMove(3)"></div>
+            <div class="cell" onclick="makeMove(4)"></div>
+            <div class="cell" onclick="makeMove(5)"></div>
+            <div class="cell" onclick="makeMove(6)"></div>
+            <div class="cell" onclick="makeMove(7)"></div>
+            <div class="cell" onclick="makeMove(8)"></div>
+        </div>
+
+        <button onclick="resetGame()">Restart Game</button>
+    </div>
+
+    <script>
+        async function makeMove(index) {
+            const response = await fetch("/move", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ index })
+            });
+            const data = await response.json();
+            updateBoard(data);
+        }
+
+        async function resetGame() {
+            const response = await fetch("/reset", {
+                method: "POST"
+            });
+            const data = await response.json();
+            updateBoard(data);
+        }
+
+        function updateBoard(data) {
+            const cells = document.querySelectorAll(".cell");
+            data.board.forEach((value, index) => {
+                cells[index].textContent = value;
+            });
+
+            const status = document.getElementById("status");
+            if (data.winner === "Draw") {
+                status.textContent = "Game ended in a Draw!";
+            } else if (data.winner) {
+                status.textContent = "Winner: " + data.winner;
+            } else {
+                status.textContent = "Current Player: " + data.current_player;
+            }
+        }
+    </script>
+</body>
+</html>
